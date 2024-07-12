@@ -1,7 +1,7 @@
 import { httpAction } from "./_generated/server";
 
 const API_URL = "https://api.api-ninjas.com/v1/facts";
-const API_KEY = "YOUR_API_KEY"; // Replace with your actual API key
+const API_KEY = "P9nis6bPQQRNLyrFK/yPaw==VJczzEp4moLZHGrk"; // Replace with your actual API key
 
 export const getRandomFact = httpAction(async () => {
   try {
@@ -11,15 +11,7 @@ export const getRandomFact = httpAction(async () => {
       },
     });
 
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({ error: `Failed to fetch random fact` }),
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return new Response(JSON.stringify(data), { status: 200 });
+    return response;
   } catch (error: any) {
     return new Response(
       JSON.stringify({ error: `Internal Server Error: ${error.message}` }),

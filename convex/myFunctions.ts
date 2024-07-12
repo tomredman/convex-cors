@@ -21,7 +21,7 @@ export const listNumbers = query({
       // Ordered by _creationTime, return most recent
       .order("desc")
       .take(args.count);
-    return numbers.toReversed().map((number) => number.value);
+    return numbers.reverse().map((number) => number.value);
   },
 });
 

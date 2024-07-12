@@ -1,9 +1,26 @@
+/**
+ * This file defines a CorsHttpRouter class that extends Convex's HttpRouter.
+ * It provides CORS (Cross-Origin Resource Sharing) support for HTTP routes.
+ * 
+ * The CorsHttpRouter:
+ * 1. Allows specifying allowed origins for CORS.
+ * 2. Overrides the route method to add CORS headers to all non-OPTIONS requests.
+ * 3. Automatically adds an OPTIONS route to handle CORS preflight requests.
+ * 4. Uses the handleCors helper function to apply CORS headers consistently.
+ * 
+ * This router simplifies the process of making Convex HTTP endpoints 
+ * accessible to web applications hosted on different domains while 
+ * maintaining proper CORS configuration.
+ */
+
 import {
   httpRouter,
   HttpRouter,
   PublicHttpAction,
   RoutableMethod,
-  RouteSpec,
+  RouteSpecWithPath,
+  RouteSpecWithPathPrefix,
+  RouteSpec
 } from "convex/server";
 import { handleCors } from "./corsHelper";
 
@@ -25,14 +42,29 @@ export class CorsHttpRouter extends HttpRouter {
     const router = httpRouter();
     router.route(routeSpec);
 
-    this.exactRoutes.forEach((methods, path) => {
+    console.log("HELLO OUT THERE!");
+    console.log(this.exactRoutes);
+    console.log("HELLOGOODBYE OUT THERE!");
+
+    //this.addRoute(this, routeSpec.path, routeSpec.method, routeSpec.handler);
+    const routes  = router.getRoutes();
+
+    // if ('path' in routeSpec) {
+    //   this.addOptionsRoute(this, routeSpec.path, routes);
+    // }
+
+    routes.forEach((path, method, endpoint) => {
+      console.log("methods", methods);
+      console.log("path", path);
       methods.forEach((handler, method) => {
-        if (method === "OPTIONS") {
-          return;
-        }
+        console.log("---");
+        console.log(handler);
+        console.log(method);
+        console.log("+++");
+        if (method === "OPTIONS") return; // OPTIONS is handled manually via addOptionsRoute()
         this.addRoute(router, path, method, handler);
       });
-      this.addOptionsRoute(router, path, methods);
+      //this.addOptionsRoute(router, path, methods);
     });
 
     this.updateRoutes(router);
@@ -40,14 +72,18 @@ export class CorsHttpRouter extends HttpRouter {
 
   private addRoute(
     router: HttpRouter,
-    path: string,
+    path: string ,
     method: RoutableMethod,
     handler: PublicHttpAction
   ): void {
     router.route({
       path,
       method,
-      handler,
+      handler: handleCors({
+        originalHandler: handler, 
+        allowedOrigins: this.allowedOrigins,
+        allowedMethods: [method],
+      }),
     });
   }
 
