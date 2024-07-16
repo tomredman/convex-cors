@@ -23,14 +23,8 @@ import {
 import { handleCors } from "./corsHelper";
 
 type RouteSpecWithCors = RouteSpec & {
-  noCors?: boolean;
   allowedOrigins?: string[];
 };
-
-// const defaultRouteSpecWithCors: RouteSpecWithCors = {
-//   noCors: false,
-//   allowedOrigins: [],
-// };
 
 /**
  * Factory function to create a new CorsHttpRouter instance.
@@ -64,14 +58,8 @@ export class CorsHttpRouter extends HttpRouter {
     tempRouter.exactRoutes = this.exactRoutes;
     tempRouter.prefixRoutes = this.prefixRoutes;
 
-    const noCors = routeSpec.noCors ?? false;
     const allowedOrigins = routeSpec.allowedOrigins ?? this.allowedOrigins;
 
-    if (noCors) {
-      tempRouter.route(routeSpec);
-      this.mergeRoutes(tempRouter);
-      return;
-    }
     const routeSpecWithCors = this.createRouteSpecWithCors(
       routeSpec,
       allowedOrigins

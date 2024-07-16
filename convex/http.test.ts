@@ -111,16 +111,6 @@ describe("HTTP routes", () => {
     );
   });
 
-  test("Route with noCors option", async () => {
-    const t = convexTest();
-    const response = await t.fetch("/routeWithoutCors", { method: "GET" });
-    expect(response.status).toBe(200);
-    expect(response.headers.get("Access-Control-Allow-Origin")).toBeNull();
-    expect(response.headers.get("Access-Control-Allow-Methods")).toBeNull();
-    const body = await response.json();
-    expect(body).toEqual({ message: "No CORS allowed here, pal." });
-  });
-
   test("Route with custom allowedOrigins", async () => {
     const t = convexTest();
     const response = await t.fetch("/specialRouteOnlyForThisOrigin", {

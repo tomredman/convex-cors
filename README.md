@@ -28,16 +28,34 @@ const router = corsHttpRouter({
   allowedOrigins: ["http://localhost:3000"], // or '*' to allow all
 });
 
-http.route({
+/**
+ * CORS routes
+ */
+http.corsRoute({
   path: "/fact",
   method: "GET",
-  handler: getFact, // is an httpAction
+  handler: getFact,
+});
+
+http.corsRoute({
+  path: "/fact",
+  method: "POST",
+  handler: getFact,
+});
+
+/**
+ * Non-CORS routes
+ */
+http.route({
+  path: "/nocors/fact",
+  method: "GET",
+  handler: getFact,
 });
 
 http.route({
-  path: "/fact",
+  path: "/nocors/fact",
   method: "POST",
-  handler: getFact, // is an httpAction
+  handler: getFact,
 });
 ```
 
@@ -47,7 +65,7 @@ You can provide optional allowedOrigins per route:
 /**
  * Per-path "allowedOrigins" will override the default "allowedOrigins" for that route
  */
-http.route({
+http.corsRoute({
   path: "/specialRouteOnlyForThisOrigin",
   method: "GET",
   handler: httpAction(async () => {
@@ -62,30 +80,6 @@ http.route({
     );
   }),
   allowedOrigins: ["http://localhost:3000"],
-});
-```
-
-You can also diabled CORS for a route:
-
-```typescript
-/**
- * Disable CORS for this route
- */
-http.route({
-  path: "/routeWithoutCors",
-  method: "GET",
-  handler: httpAction(async () => {
-    return new Response(
-      JSON.stringify({ message: "No CORS allowed here, pal." }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  }),
-  noCors: true,
 });
 ```
 
