@@ -1,23 +1,14 @@
 import { httpAction } from "./_generated/server";
+import { facts } from "./data/facts";
 
-const API_URL = "https://api.api-ninjas.com/v1/facts";
-const API_KEY = "P9nis6bPQQRNLyrFK/yPaw==VJczzEp4moLZHGrk"; // Replace with your actual API key
+export const getFact = httpAction(async () => {
+  const randomIndex = Math.floor(Math.random() * facts.length);
+  const randomFact = facts[randomIndex];
 
-export const getRandomFact = httpAction(async () => {
-  try {
-    const response = await fetch(API_URL, {
-      headers: {
-        "X-Api-Key": API_KEY,
-      },
-    });
-
-    return response;
-  } catch (error: any) {
-    return new Response(
-      JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
-      {
-        status: 500,
-      }
-    );
-  }
+  return new Response(JSON.stringify([{ fact: randomFact }]), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 });

@@ -1,44 +1,50 @@
-import { getRandomFact } from "./myHttpApi";
+import { getFact } from "./myHttpApi";
 import { corsHttpRouter } from "./helpers/corsHttpRouter";
 
 const http = corsHttpRouter({
   allowedOrigins: ["*"],
 });
 
+/**
+ * Exact routes will match /fact exactly
+ */
 http.route({
-  path: "/randomFact",
+  path: "/fact",
   method: "GET",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
 http.route({
-  path: "/randomFact",
+  path: "/fact",
   method: "POST",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
 http.route({
-  path: "/randomFact",
+  path: "/fact",
   method: "PATCH",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
 http.route({
-  path: "/randomFact",
+  path: "/fact",
   method: "DELETE",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
+/**
+ * Prefix routes will match /dynamicFact/123 and /dynamicFact/456 etc.
+ */
 http.route({
-  pathPrefix: "/randomFact/",
+  pathPrefix: "/dynamicFact/",
   method: "GET",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
 http.route({
-  pathPrefix: "/randomFact/",
+  pathPrefix: "/dynamicFact/",
   method: "PATCH",
-  handler: getRandomFact,
+  handler: getFact,
 });
 
 // Convex expects the router to be the default export of `convex/http.js`.

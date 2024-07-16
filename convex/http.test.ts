@@ -1,52 +1,126 @@
 import { convexTest } from "convex-test";
-import { expect, test, describe } from "vitest";
+import { expect, test, describe, beforeAll, afterAll } from "vitest";
+import { facts } from "./data/facts";
+
+beforeAll(() => {
+  //setup
+});
+
+afterAll(() => {
+  //teardown
+});
 
 describe("HTTP routes", () => {
-  test("GET /randomFact", async () => {
+  const expectedHeaders = ({ method }: { method: string }) => {
+    return {
+      "access-control-allow-headers": "Content-Type",
+      "access-control-allow-methods": `${method}`,
+      "access-control-allow-origin": "*",
+      "access-control-max-age": "86400",
+      "content-type": "application/json",
+    };
+  };
+
+  const verifyHeaders = (method: string, headers: Headers) => {
+    expect(headers.get("access-control-allow-headers")).toBe(
+      expectedHeaders({ method })["access-control-allow-headers"]
+    );
+    expect(headers.get("access-control-allow-methods")).toBe(
+      expectedHeaders({ method })["access-control-allow-methods"]
+    );
+    expect(headers.get("access-control-allow-origin")).toBe(
+      expectedHeaders({ method })["access-control-allow-origin"]
+    );
+    expect(headers.get("access-control-max-age")).toBe(
+      expectedHeaders({ method })["access-control-max-age"]
+    );
+    expect(headers.get("content-type")).toBe(
+      expectedHeaders({ method })["content-type"]
+    );
+  };
+
+  test("GET /fact", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact", { method: "GET" });
+    const response = await t.fetch("/fact", { method: "GET" });
     expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    verifyHeaders("GET", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("POST /randomFact", async () => {
+  test("POST /fact", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact", { method: "POST" });
-    expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    const response = await t.fetch("/fact", {
+      method: "POST",
+    });
+    verifyHeaders("POST", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("PATCH /randomFact", async () => {
+  test("PATCH /fact", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact", { method: "PATCH" });
+    const response = await t.fetch("/fact", { method: "PATCH" });
     expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    verifyHeaders("PATCH", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("DELETE /randomFact", async () => {
+  test("DELETE /fact", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact", { method: "DELETE" });
+    const response = await t.fetch("/fact", { method: "DELETE" });
     expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    verifyHeaders("DELETE", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("GET /randomFact/", async () => {
+  test("GET /dynamicFact/123", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact/", { method: "GET" });
+    const response = await t.fetch("/dynamicFact/123", { method: "GET" });
     expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    verifyHeaders("GET", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("PATCH /randomFact/", async () => {
+  test("PATCH /dynamicFact/123", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact/", { method: "PATCH" });
+    const response = await t.fetch("/dynamicFact/123", { method: "PATCH" });
     expect(response.status).toBe(200);
-    expect(response.body).toBeDefined();
+    verifyHeaders("PATCH", response.headers);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(1);
+    expect(body[0]).toHaveProperty("fact");
+    expect(typeof body[0].fact).toBe("string");
+    expect(facts).toContain(body[0].fact);
   });
 
-  test("OPTIONS /randomFact (CORS preflight)", async () => {
+  test("OPTIONS /fact (CORS preflight)", async () => {
     const t = convexTest();
-    const response = await t.fetch("/randomFact", { method: "OPTIONS" });
+    const response = await t.fetch("/fact", { method: "OPTIONS" });
     expect(response.status).toBe(204);
     expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
     expect(response.headers.get("Access-Control-Allow-Methods")).toContain(

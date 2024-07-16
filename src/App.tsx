@@ -13,7 +13,7 @@ function App() {
 
   const handleClickGetRandomFact = async () => {
     try {
-      const response = await fetch(`${CONVEX_HTTP_URL}/randomFact`);
+      const response = await fetch(`${CONVEX_HTTP_URL}/dynamicFact/123`);
       if (!response.ok) {
         const data = await response.json();
         setError(data.error);
@@ -78,7 +78,7 @@ function App() {
         </pre>
         <p>
           Now, when the app at goodactor.com makes a request to
-          https://example.com/api/randomFact, the browser will first request the
+          https://example.com/api/fact, the browser will first request the
           OPTIONS response, which says that GET is allowed from this domain, and
           then the browser will carry on with the actual request, which also
           allows goodactor.com to make that request.
@@ -137,7 +137,6 @@ function App() {
 
         <ul className="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 py-4">
           {facts.map((fact, index) => {
-            console.log(fact);
             return <li key={index}>{fact}</li>;
           })}
         </ul>

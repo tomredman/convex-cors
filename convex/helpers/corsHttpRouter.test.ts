@@ -1,6 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
-import { corsHttpRouter } from "./helpers/corsHttpRouter";
-import { httpAction } from "./_generated/server";
+import { corsHttpRouter } from "./corsHttpRouter";
+import { httpAction } from "../_generated/server";
 
 describe("CorsHttpRouter", () => {
   test("creates a router with allowed origins", () => {

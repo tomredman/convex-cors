@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as data_facts from "../data/facts.js";
 import type * as helpers_corsHelper from "../helpers/corsHelper.js";
 import type * as helpers_corsHttpRouter from "../helpers/corsHttpRouter.js";
 import type * as http from "../http.js";
@@ -29,6 +30,7 @@ import type * as myHttpApi from "../myHttpApi.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "data/facts": typeof data_facts;
   "helpers/corsHelper": typeof helpers_corsHelper;
   "helpers/corsHttpRouter": typeof helpers_corsHttpRouter;
   http: typeof http;

@@ -65,7 +65,7 @@ const handleCors = ({
    */
   const allowMethods = filteredMethods.includes("OPTIONS")
     ? filteredMethods.join(", ")
-    : [...filteredMethods, "OPTIONS"].join(", ");
+    : [...filteredMethods].join(", ");
 
   /**
    * Format origins correctly

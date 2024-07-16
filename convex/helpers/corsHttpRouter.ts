@@ -120,18 +120,23 @@ export class CorsHttpRouter extends HttpRouter {
      * a Map<string, Map<string, PublicHttpAction>> where the KEY is the
      * METHOD and the VALUE is a map of paths and handlers.
      */
-    const currentMethodsForPrefix =
-      tempRouter.prefixRoutes.get(routeSpec.method) || new Map();
+    const currentMethods = tempRouter.prefixRoutes.keys();
     const optionsHandler = this.createOptionsHandlerForMethods(
-      Array.from(tempRouter.prefixRoutes.keys())
+      Array.from(currentMethods ?? [])
     );
 
-    const optionsPrefixes = tempRouter.prefixRoutes.get("OPTIONS") || new Map();
+    /**
+     * Add the OPTIONS handler for the given path prefix
+     */
+    const optionsPrefixes =
+      tempRouter.prefixRoutes.get("OPTIONS") ||
+      new Map<string, PublicHttpAction>();
     optionsPrefixes.set(routeSpec.pathPrefix, optionsHandler);
-    tempRouter.prefixRoutes.set("OPTIONS", optionsPrefixes);
 
-    currentMethodsForPrefix.set(routeSpec.pathPrefix, routeSpec.handler);
-    tempRouter.prefixRoutes.set(routeSpec.method, currentMethodsForPrefix);
+    /**
+     * Add the updated methods for the given path to the prefixRoutes map
+     */
+    tempRouter.prefixRoutes.set("OPTIONS", optionsPrefixes);
   }
 
   /**
