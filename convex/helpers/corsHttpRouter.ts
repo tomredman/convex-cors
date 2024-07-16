@@ -22,6 +22,16 @@ import {
 } from "convex/server";
 import { handleCors } from "./corsHelper";
 
+type RouteSpecWithCors = RouteSpec & {
+  noCors?: boolean;
+  allowedOrigins?: string[];
+};
+
+// const defaultRouteSpecWithCors: RouteSpecWithCors = {
+//   noCors: false,
+//   allowedOrigins: [],
+// };
+
 /**
  * Factory function to create a new CorsHttpRouter instance.
  * @param allowedOrigins An array of allowed origins for CORS.
@@ -49,11 +59,23 @@ export class CorsHttpRouter extends HttpRouter {
    * Overrides the route method to add CORS support.
    * @param routeSpec The route specification to be added.
    */
-  route = (routeSpec: RouteSpec): void => {
+  corsRoute = (routeSpec: RouteSpecWithCors): void => {
     const tempRouter = httpRouter();
     tempRouter.exactRoutes = this.exactRoutes;
     tempRouter.prefixRoutes = this.prefixRoutes;
-    const routeSpecWithCors = this.createRouteSpecWithCors(routeSpec);
+
+    const noCors = routeSpec.noCors ?? false;
+    const allowedOrigins = routeSpec.allowedOrigins ?? this.allowedOrigins;
+
+    if (noCors) {
+      tempRouter.route(routeSpec);
+      this.mergeRoutes(tempRouter);
+      return;
+    }
+    const routeSpecWithCors = this.createRouteSpecWithCors(
+      routeSpec,
+      allowedOrigins
+    );
     tempRouter.route(routeSpecWithCors);
 
     /**
@@ -61,9 +83,9 @@ export class CorsHttpRouter extends HttpRouter {
      * accordingly.
      */
     if ("path" in routeSpec) {
-      this.handleExactRoute(tempRouter, routeSpec);
+      this.handleExactRoute(tempRouter, routeSpec, allowedOrigins);
     } else {
-      this.handlePrefixRoute(tempRouter, routeSpec);
+      this.handlePrefixRoute(tempRouter, routeSpec, allowedOrigins);
     }
 
     /**
@@ -79,7 +101,8 @@ export class CorsHttpRouter extends HttpRouter {
    */
   private handleExactRoute(
     tempRouter: HttpRouter,
-    routeSpec: RouteSpecWithPath
+    routeSpec: RouteSpecWithPath,
+    allowedOrigins: string[]
   ): void {
     /**
      * exactRoutes is defined as a Map<string, Map<string, PublicHttpAction>>
@@ -92,7 +115,8 @@ export class CorsHttpRouter extends HttpRouter {
      * an OPTIONS handler for all registered HTTP methods for the given path
      */
     const optionsHandler = this.createOptionsHandlerForMethods(
-      Array.from(currentMethodsForPath?.keys() ?? [])
+      Array.from(currentMethodsForPath?.keys() ?? []),
+      allowedOrigins
     );
 
     /**
@@ -113,7 +137,8 @@ export class CorsHttpRouter extends HttpRouter {
    */
   private handlePrefixRoute(
     tempRouter: HttpRouter,
-    routeSpec: RouteSpecWithPathPrefix
+    routeSpec: RouteSpecWithPathPrefix,
+    allowedOrigins: string[]
   ): void {
     /**
      * prefixRoutes is structured differently than exactRoutes. It's defined as
@@ -122,7 +147,8 @@ export class CorsHttpRouter extends HttpRouter {
      */
     const currentMethods = tempRouter.prefixRoutes.keys();
     const optionsHandler = this.createOptionsHandlerForMethods(
-      Array.from(currentMethods ?? [])
+      Array.from(currentMethods ?? []),
+      allowedOrigins
     );
 
     /**
@@ -144,10 +170,13 @@ export class CorsHttpRouter extends HttpRouter {
    * @param routeSpec Original route specification.
    * @returns Modified route specification with CORS handler.
    */
-  private createRouteSpecWithCors(routeSpec: RouteSpec): RouteSpec {
+  private createRouteSpecWithCors(
+    routeSpec: RouteSpec,
+    allowedOrigins: string[]
+  ): RouteSpec {
     const httpCorsHandler = handleCors({
       originalHandler: routeSpec.handler,
-      allowedOrigins: this.allowedOrigins,
+      allowedOrigins: allowedOrigins,
       allowedMethods: [routeSpec.method],
     });
     return {
@@ -166,9 +195,12 @@ export class CorsHttpRouter extends HttpRouter {
    * @param methods Array of HTTP methods to be allowed.
    * @returns A CORS-enabled OPTIONS handler.
    */
-  private createOptionsHandlerForMethods(methods: string[]): PublicHttpAction {
+  private createOptionsHandlerForMethods(
+    methods: string[],
+    allowedOrigins: string[]
+  ): PublicHttpAction {
     return handleCors({
-      allowedOrigins: this.allowedOrigins,
+      allowedOrigins: allowedOrigins,
       allowedMethods: methods,
     });
   }

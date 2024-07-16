@@ -20,6 +20,10 @@ Here's a snippet from our `http.ts` file demonstrating how to use the `corsHttpR
 import { getFact } from "./myHttpApi";
 import { corsHttpRouter } from "./helpers/corsHttpRouter";
 
+// Your standard Convex http router:
+// const router = httpRouter();
+
+// Your CORS router:
 const router = corsHttpRouter({
   allowedOrigins: ["http://localhost:3000"], // or '*' to allow all
 });
@@ -34,6 +38,54 @@ http.route({
   path: "/fact",
   method: "POST",
   handler: getFact, // is an httpAction
+});
+```
+
+You can provide optional allowedOrigins per route:
+
+```typescript
+/**
+ * Per-path "allowedOrigins" will override the default "allowedOrigins" for that route
+ */
+http.route({
+  path: "/specialRouteOnlyForThisOrigin",
+  method: "GET",
+  handler: httpAction(async () => {
+    return new Response(
+      JSON.stringify({ message: "Custom allowed origins! Wow!" }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }),
+  allowedOrigins: ["http://localhost:3000"],
+});
+```
+
+You can also diabled CORS for a route:
+
+```typescript
+/**
+ * Disable CORS for this route
+ */
+http.route({
+  path: "/routeWithoutCors",
+  method: "GET",
+  handler: httpAction(async () => {
+    return new Response(
+      JSON.stringify({ message: "No CORS allowed here, pal." }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }),
+  noCors: true,
 });
 ```
 

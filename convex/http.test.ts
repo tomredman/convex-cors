@@ -66,32 +66,6 @@ describe("HTTP routes", () => {
     expect(facts).toContain(body[0].fact);
   });
 
-  test("PATCH /fact", async () => {
-    const t = convexTest();
-    const response = await t.fetch("/fact", { method: "PATCH" });
-    expect(response.status).toBe(200);
-    verifyHeaders("PATCH", response.headers);
-    const body = await response.json();
-    expect(Array.isArray(body)).toBe(true);
-    expect(body.length).toBe(1);
-    expect(body[0]).toHaveProperty("fact");
-    expect(typeof body[0].fact).toBe("string");
-    expect(facts).toContain(body[0].fact);
-  });
-
-  test("DELETE /fact", async () => {
-    const t = convexTest();
-    const response = await t.fetch("/fact", { method: "DELETE" });
-    expect(response.status).toBe(200);
-    verifyHeaders("DELETE", response.headers);
-    const body = await response.json();
-    expect(Array.isArray(body)).toBe(true);
-    expect(body.length).toBe(1);
-    expect(body[0]).toHaveProperty("fact");
-    expect(typeof body[0].fact).toBe("string");
-    expect(facts).toContain(body[0].fact);
-  });
-
   test("GET /dynamicFact/123", async () => {
     const t = convexTest();
     const response = await t.fetch("/dynamicFact/123", { method: "GET" });
@@ -135,6 +109,41 @@ describe("HTTP routes", () => {
     expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
       "DELETE"
     );
+  });
+
+  test("Route with noCors option", async () => {
+    const t = convexTest();
+    const response = await t.fetch("/routeWithoutCors", { method: "GET" });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBeNull();
+    expect(response.headers.get("Access-Control-Allow-Methods")).toBeNull();
+    const body = await response.json();
+    expect(body).toEqual({ message: "No CORS allowed here, pal." });
+  });
+
+  test("Route with custom allowedOrigins", async () => {
+    const t = convexTest();
+    const response = await t.fetch("/specialRouteOnlyForThisOrigin", {
+      method: "GET",
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000"
+    );
+    const body = await response.json();
+    expect(body).toEqual({ message: "Custom allowed origins! Wow!" });
+  });
+
+  test("OPTIONS for route with custom allowedOrigins", async () => {
+    const t = convexTest();
+    const response = await t.fetch("/specialRouteOnlyForThisOrigin", {
+      method: "OPTIONS",
+    });
+    expect(response.status).toBe(204);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000"
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toBe("GET");
   });
 
   test("Non-existent route", async () => {

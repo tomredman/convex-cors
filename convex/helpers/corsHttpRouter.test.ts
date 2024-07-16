@@ -13,7 +13,7 @@ describe("CorsHttpRouter", () => {
     const router = corsHttpRouter({ allowedOrigins: ["https://example.com"] });
     const handler = vi.fn();
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "GET",
       handler: httpAction(handler),
@@ -29,7 +29,7 @@ describe("CorsHttpRouter", () => {
     const router = corsHttpRouter({ allowedOrigins: ["https://example.com"] });
     const handler = vi.fn();
 
-    router.route({
+    router.corsRoute({
       pathPrefix: "/test/",
       method: "POST",
       handler: httpAction(handler),
@@ -49,13 +49,13 @@ describe("CorsHttpRouter", () => {
     const handlerGet = vi.fn();
     const handlerPost = vi.fn();
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "GET",
       handler: httpAction(handlerGet),
     });
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "POST",
       handler: httpAction(handlerPost),
@@ -72,7 +72,7 @@ describe("CorsHttpRouter", () => {
     const router = corsHttpRouter({ allowedOrigins: ["https://example.com"] });
     const handler = vi.fn();
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "GET",
       handler: httpAction(handler),
@@ -89,13 +89,13 @@ describe("CorsHttpRouter", () => {
     const handlerGet = vi.fn();
     const handlerPost = vi.fn();
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "GET",
       handler: httpAction(handlerGet),
     });
 
-    router.route({
+    router.corsRoute({
       path: "/test",
       method: "POST",
       handler: httpAction(handlerPost),

@@ -1,29 +1,50 @@
 import { Link } from "@/components/typography/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusIcon, Recycle } from "lucide-react";
+import { Switch } from "./components/ui/switch";
+import { Label } from "./components/ui/label";
 
 function App() {
   const [facts, setFacts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const CONVEX_HTTP_URL = import.meta.env.VITE_CONVEX_HTTP_URL; //ends with .site not .cloud
+  const [useCors, setUseCors] = useState(true);
+  const CONVEX_HTTP_URL = "https://quaint-bandicoot-730.convex.site";
 
   const clearErrors = () => {
     setError(null);
   };
 
+  useEffect(() => {
+    if (useCors) {
+      clearErrors();
+    }
+  }, [useCors]);
+
   const handleClickGetRandomFact = async () => {
     try {
-      const response = await fetch(`${CONVEX_HTTP_URL}/dynamicFact/123`);
+      // Setting 'Content-Type' to 'application/json' here makes it a "non-simple" CORS
+      // request and the browser will send a preflight OPTIONS request.
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+      const response = await fetch(
+        `${CONVEX_HTTP_URL}/${useCors ? "fact" : "nocors/fact"}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         setError(data.error);
       } else {
         clearErrors();
-        const data = await response.json();
         setFacts([...facts, data[0].fact]);
       }
     } catch (e: Error) {
-      setError(e.message);
+      if (e.message === "Failed to fetch") {
+        setError("OMG blocked by CORS again!");
+      } else {
+        setError(e.message);
+      }
     }
   };
 
@@ -86,9 +107,12 @@ function App() {
       </div>
       <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-4 ring-1 ring-slate-900/5 shadow-xl">
         <div className="flex flex-row justify-between items-baseline mb-4">
-          <h3 className="text-slate-900 dark:text-white mt-5 text-xl font-medium tracking-tight">
-            Facts
-          </h3>
+          <div className="flex flex-col gap-0">
+            <h3 className="text-slate-900 dark:text-white mt-5 text-xl font-medium tracking-tight">
+              Facts*
+            </h3>
+            <div className="italic text-sm opacity-20">*may not be true</div>
+          </div>
           <div className="flex flex-row gap-4">
             <button
               type="button"
@@ -111,12 +135,37 @@ function App() {
               <Recycle className="mr-2 w-6 h-6" />
               <span className="self-center text-sm font-medium">Reset</span>
             </button>
+            <div
+              className={
+                error
+                  ? `flex items-center space-x-2 text-red-500 animate-pulse`
+                  : `flex items-center space-x-2`
+              }
+            >
+              <Switch
+                id="cors-toggle"
+                checked={useCors}
+                onCheckedChange={setUseCors}
+              />
+              <Label htmlFor="cors-toggle">Use CORS</Label>
+            </div>
           </div>
         </div>
 
-        {error && <p className="text-red-500">{error}</p>}
+        {error && (
+          <>
+            <p className="text-red-500 text-center">{error}</p>
+            <p className="text-center opacity-20 text-sm">
+              (Hint: Enable CORS and try again.)
+            </p>
+          </>
+        )}
 
-        <div className="text-sm text-slate-500 mt-12">
+        <div
+          className={
+            facts.length > 0 ? `hidden` : `text-sm text-slate-500 mt-12`
+          }
+        >
           <ol>
             <li>
               1. Open developer tools:{" "}
@@ -150,10 +199,7 @@ function App() {
             type="button"
             className="flex items-center justify-center px-4 py-1 text-center text-white bg-emerald-600 border border-emerald-700 rounded-lg focus:outline-none hover:bg-emerald-700"
             onClick={() => {
-              window.open(
-                "https://github.com/convexdev/cors-example",
-                "_blank"
-              );
+              window.open("https://github.com/tomredman/convex-cors", "_blank");
             }}
           >
             <img
@@ -169,6 +215,13 @@ function App() {
         </div>
 
         <ul className="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 py-4">
+          <li>
+            Explore{" "}
+            <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+              convex/helpers/corsHttpRouter.ts
+            </code>{" "}
+            to see how it works
+          </li>
           <li>
             Edit{" "}
             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
