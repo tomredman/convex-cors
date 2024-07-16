@@ -20,9 +20,11 @@ import {
   RoutableMethod,
   RouteSpecWithPath,
   RouteSpecWithPathPrefix,
-  RouteSpec
+  RouteSpec,
+  ROUTABLE_HTTP_METHODS
 } from "convex/server";
 import { handleCors } from "./corsHelper";
+import { error } from "console";
 
 export const corsHttpRouter = ({
   allowedOrigins,
@@ -39,73 +41,62 @@ export class CorsHttpRouter extends HttpRouter {
   }
 
   route = (routeSpec: RouteSpec): void => {
-    const router = httpRouter();
-    router.route(routeSpec);
+    const tempRouter = httpRouter();
+    tempRouter.exactRoutes = this.exactRoutes;
+    tempRouter.prefixRoutes = this.prefixRoutes;
+    const routeSpecWithCors = this.createRouteSpecWithCors(routeSpec);
+    tempRouter.route(routeSpecWithCors);
 
-    console.log("HELLO OUT THERE!");
-    console.log(this.exactRoutes);
-    console.log("HELLOGOODBYE OUT THERE!");
+    if ('path' in routeSpec) {
+      const currentMethodsForPath = tempRouter.exactRoutes.get(routeSpec.path);
+      const optionsHandler = this.createOptionsHandlerForMethods(Array.from(currentMethodsForPath?.keys() ?? [])
+      );
+      currentMethodsForPath?.set("OPTIONS", optionsHandler);
+      tempRouter.exactRoutes.set(routeSpec.path, new Map(currentMethodsForPath));
+    }
+    else if ('pathPrefix' in routeSpec) {
+      const currentHandlerForMethod = tempRouter.prefixRoutes.get("OPTIONS");
+      const optionsHandler = this.createOptionsHandlerForMethods(Array.from(currentHandlerForMethod?.keys() ?? []));
+      currentHandlerForMethod?.set(routeSpec.pathPrefix, optionsHandler);
+      tempRouter.prefixRoutes.set("OPTIONS", new Map(currentHandlerForMethod));
+    }
 
-    //this.addRoute(this, routeSpec.path, routeSpec.method, routeSpec.handler);
-    const routes  = router.getRoutes();
-
-    // if ('path' in routeSpec) {
-    //   this.addOptionsRoute(this, routeSpec.path, routes);
-    // }
-
-    routes.forEach((path, method, endpoint) => {
-      console.log("methods", methods);
-      console.log("path", path);
-      methods.forEach((handler, method) => {
-        console.log("---");
-        console.log(handler);
-        console.log(method);
-        console.log("+++");
-        if (method === "OPTIONS") return; // OPTIONS is handled manually via addOptionsRoute()
-        this.addRoute(router, path, method, handler);
-      });
-      //this.addOptionsRoute(router, path, methods);
-    });
-
-    this.updateRoutes(router);
+    this.bakeRoutes(tempRouter);
   };
 
-  private addRoute(
-    router: HttpRouter,
-    path: string ,
-    method: RoutableMethod,
-    handler: PublicHttpAction
-  ): void {
-    router.route({
-      path,
-      method,
-      handler: handleCors({
-        originalHandler: handler, 
-        allowedOrigins: this.allowedOrigins,
-        allowedMethods: [method],
-      }),
+  private createRouteSpecWithCors(routeSpec: RouteSpec): RouteSpec {
+    const httpCorsHandler = handleCors({ originalHandler: routeSpec.handler, allowedOrigins: this.allowedOrigins, allowedMethods: [routeSpec.method] });
+    const httpCorsMethod = routeSpec.method;
+    if ('path' in routeSpec) {
+      return {
+        path: routeSpec.path,
+        method: httpCorsMethod,
+        handler: httpCorsHandler,
+      };
+    }
+    else if ('pathPrefix' in routeSpec) {
+      return {
+        pathPrefix: routeSpec.pathPrefix,
+        method: httpCorsMethod,
+        handler: httpCorsHandler
+      };
+    }
+
+    throw new Error("Invalid routeSpec");
+  }
+
+  private createOptionsHandlerForMethods(
+    methods: string[]
+  ): PublicHttpAction {
+    return handleCors({
+      allowedOrigins: this.allowedOrigins,
+      allowedMethods: methods,
     });
   }
 
-  private addOptionsRoute(
-    router: HttpRouter,
-    path: string,
-    methods: Map<RoutableMethod, PublicHttpAction>
-  ): void {
-    router.route({
-      path,
-      method: "OPTIONS",
-      handler: handleCors({
-        allowedOrigins: this.allowedOrigins,
-        allowedMethods: Array.from(methods.keys()),
-      }),
-    });
-  }
-
-  private updateRoutes(router: HttpRouter): void {
+  private bakeRoutes(router: HttpRouter): void {
     this.exactRoutes = new Map(router.exactRoutes);
     this.prefixRoutes = new Map(router.prefixRoutes);
-    console.log(this.exactRoutes);
   }
 }
 

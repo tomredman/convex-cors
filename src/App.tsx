@@ -12,32 +12,20 @@ function App() {
   };
 
   const handleClickGetRandomFact = async () => {
-    let response;
     try {
-      console.log("HERE 1");
-      response = await fetch(`${CONVEX_HTTP_URL}/randomFact`);
-      console.log("HERE 2");
+      const response = await fetch(`${CONVEX_HTTP_URL}/randomFact`);
       if (!response.ok) {
-        let data;
-        try {
-          data = await response.json();
-        } catch (e: any) {
-          console.log("EEEEE");
-          console.log(e);
-        }
-        console.log("HERE 3");
-        console.log("HERE 4");
+        let data = await response.json();
         setError(data.error);
-        return;
       }
-    } catch (e: any) {
-      console.error(e);
+      else {
+        clearErrors();
+        const data = await response.json();
+        setFacts([...facts, data[0].fact]);
+      }
+    } catch (e: Error) {
       setError(e.message);
-      return;
     }
-    clearErrors();
-    const data = await response.json();
-    setFacts([...facts, data.fact]);
   };
 
   return (
@@ -45,10 +33,10 @@ function App() {
       <h1 className="text-4xl font-extrabold mt-8 text-center">
         Convex ❤️ CORS
       </h1>
-      <h2 className="opacity-40 font-light mb-0 text-center uppercase tracking-[5px] text-md">
+      <h2 className="opacity-40 font-light mb-0 p-0 text-center uppercase tracking-[5px] text-md">
         Transcending boundaries
       </h2>
-      <h2 className="opacity-40 font-light mb-8 text-center uppercase tracking-[5px] text-md">
+      <h2 className="opacity-40 font-light mb-8 mt-[-14px] text-center uppercase tracking-[5px] text-md">
         Since 2020
       </h2>
       <div className="hidden">
@@ -149,16 +137,13 @@ function App() {
         </div>
 
         <ul className="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 py-4">
-          {facts.map((fact, index) => (
+          {facts.map((fact, index) => {
+            console.log(fact); 
+            return (
             <li key={index}>{fact}</li>
-          ))}
+          )})}
         </ul>
       </div>
-      <p>
-        {facts.map((fact, index) => (
-          <p key={index}>{fact}</p>
-        ))}
-      </p>
       <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-4 ring-1 ring-slate-900/5 shadow-xl">
         <div className="flex flex-row justify-between items-baseline mb-4">
           <h3 className="text-slate-900 dark:text-white mt-5 text-xl font-medium tracking-tight">
