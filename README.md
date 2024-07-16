@@ -35,17 +35,50 @@ router.listen(3001, () => {
 
 ## Getting Started
 
-To run the project, simply execute the following commands:
+### Installation
+
+To get started with this project, clone the repository and install the dependencies:
 
 ```bash
-npm i
+npm install
+```
+
+### Running the Project
+
+To run the project in development mode, use the following command:
+
+```bash
 npm run dev
 ```
+
+### Running Tests
 
 To run the tests, use the following command:
 
 ```bash
-npm run tests
+npm run test
 ```
 
-Enjoy exploring the project and learning more about how to add CORS support to your Convex applications!
+## Example Routes
+
+### Exact Routes
+
+These routes match the exact path specified:
+
+- **GET /fact**: Fetch a random fact.
+- **POST /fact**: Add a new fact.
+- **PATCH /fact**: Update an existing fact.
+- **DELETE /fact**: Delete a fact.
+
+### Prefix Routes
+
+These routes match any path that starts with the specified prefix:
+
+- **GET /dynamicFact/**: Fetch a dynamic fact.
+- **PATCH /dynamicFact/**: Update a dynamic fact.
+
+## Conclusion
+
+This project simplifies the process of adding CORS support to your Convex HTTP endpoints. With `corsHttpRouter`, you can ensure your endpoints are accessible to web applications hosted on different domains while maintaining proper CORS configuration.
+
+Happy coding!
