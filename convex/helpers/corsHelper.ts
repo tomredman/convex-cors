@@ -1,18 +1,22 @@
 /**
  * handleCors() is a higher-order function that wraps a Convex HTTP action handler to add CORS support.
  * It allows for customization of allowed HTTP methods and origins for cross-origin requests.
- * 
+ *
  * The function:
  * 1. Validates and normalizes the allowed HTTP methods.
  * 2. Generates appropriate CORS headers based on the provided configuration.
  * 3. Handles preflight OPTIONS requests automatically.
  * 4. Wraps the original handler to add CORS headers to its response.
- * 
- * This helper simplifies the process of making Convex HTTP actions accessible 
+ *
+ * This helper simplifies the process of making Convex HTTP actions accessible
  * to web applications hosted on different domains.
  */
 
-import { PublicHttpAction, ROUTABLE_HTTP_METHODS, RoutableMethod } from "convex/server";
+import {
+  PublicHttpAction,
+  ROUTABLE_HTTP_METHODS,
+  RoutableMethod,
+} from "convex/server";
 import { httpAction } from "../_generated/server";
 
 const SECONDS_IN_A_DAY = 60 * 60 * 24;
@@ -71,7 +75,6 @@ const handleCors = ({
 
   /**
    * Build up the set of CORS headers
-   * including any dynamic ones
    */
   const corsHeaders = {
     ...defaultCorsHeaders,
@@ -101,26 +104,25 @@ const handleCors = ({
     }
 
     /**
-     * First, we fire the original handler
+     * First, execute the original handler
      */
     const originalResponse = await originalHandler(_, request);
 
     /**
-     * Second, get a copy of its headers
+     * Second, get a copy of the original response's headers
      */
     const newHeaders = new Headers(originalResponse.headers);
 
     /**
-     * Third, add or upadte our CORS headers
+     * Third, add or update our CORS headers
      */
     Object.entries(corsHeaders).forEach(([key, value]) => {
       newHeaders.set(key, value);
     });
 
     /**
-     * Fouth, return the modified Response.
-     * Note that a Response object is immutable,
-     * which is why we create a new one to return here.
+     * Fourth, return the modified Response.
+     * A Response object is immutable, so we create a new one to return here.
      */
     return new Response(originalResponse.body, {
       status: originalResponse.status,

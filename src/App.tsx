@@ -15,10 +15,9 @@ function App() {
     try {
       const response = await fetch(`${CONVEX_HTTP_URL}/randomFact`);
       if (!response.ok) {
-        let data = await response.json();
+        const data = await response.json();
         setError(data.error);
-      }
-      else {
+      } else {
         clearErrors();
         const data = await response.json();
         setFacts([...facts, data[0].fact]);
@@ -138,10 +137,9 @@ function App() {
 
         <ul className="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 py-4">
           {facts.map((fact, index) => {
-            console.log(fact); 
-            return (
-            <li key={index}>{fact}</li>
-          )})}
+            console.log(fact);
+            return <li key={index}>{fact}</li>;
+          })}
         </ul>
       </div>
       <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-4 ring-1 ring-slate-900/5 shadow-xl">

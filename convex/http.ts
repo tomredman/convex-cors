@@ -29,5 +29,17 @@ http.route({
   handler: getRandomFact,
 });
 
+http.route({
+  pathPrefix: "/randomFact/",
+  method: "GET",
+  handler: getRandomFact,
+});
+
+http.route({
+  pathPrefix: "/randomFact/",
+  method: "PATCH",
+  handler: getRandomFact,
+});
+
 // Convex expects the router to be the default export of `convex/http.js`.
 export default http;
