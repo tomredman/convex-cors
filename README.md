@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project demonstrates how to enhance your Convex HTTP endpoints with CORS (Cross-Origin Resource Sharing) support using a custom `corsHttpRouter`. This router is a drop-in replacement for Convex's standard `httpRouter`, making it easy to add CORS headers to your HTTP routes.
+This project demonstrates how to enhance your Convex HTTP endpoints with CORS (Cross-Origin Resource Sharing) support using a custom `corsHttpRouter`. This router add functionality to Convex's standard `httpRouter`, making it easy to add CORS headers to your HTTP routes.
 
 ## Features
 
