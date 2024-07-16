@@ -12,7 +12,7 @@ This project demonstrates how to enhance your Convex HTTP endpoints with CORS (C
 
 ## How It Works
 
-The `corsHttpRouter` extends Convex's `httpRouter` to include CORS functionality. It overrides the `route` method to add CORS headers to all non-OPTIONS requests and automatically adds an OPTIONS route to handle CORS preflight requests.
+The `corsHttpRouter` extends Convex's `httpRouter` to include CORS functionality. It add a new method `corsRoute` which adds CORS headers to all non-OPTIONS requests and automatically adds an OPTIONS route to handle CORS preflight requests.
 
 Here's a snippet from our `http.ts` file demonstrating how to use the `corsHttpRouter`:
 
