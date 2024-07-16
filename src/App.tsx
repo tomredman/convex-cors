@@ -23,7 +23,7 @@ function App() {
   const handleClickGetRandomFact = async () => {
     try {
       // Setting 'Content-Type' to 'application/json' here makes it a "non-simple" CORS
-      // request and the browser will send a preflight OPTIONS request.
+      // request and the browser will therefore send a preflight OPTIONS request.
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
       const response = await fetch(
         `${CONVEX_HTTP_URL}/${useCors ? "fact" : "nocors/fact"}`,
