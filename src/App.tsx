@@ -122,11 +122,13 @@ function App() {
               }}
             >
               <PlusIcon className="mr-2 w-6 h-6" />
-              <span className="self-center text-sm font-medium">New fact</span>
+              <span className="self-center text-sm font-medium">
+                Fetch me a fact
+              </span>
             </button>
             <button
               type="button"
-              className="flex items-center justify-center px-4 py-1 text-center text-white bg-slate-700 shadow-sm rounded-lg focus:outline-none hover:bg-slate-900"
+              className="flex items-center justify-center px-4 py-1 text-center text-white bg-slate-700 shadow-sm rounded-lg focus:outline-none hover:bg-slate-900 hidden"
               onClick={() => {
                 setFacts([]);
                 clearErrors();
@@ -190,7 +192,7 @@ function App() {
           })}
         </ul>
       </div>
-      <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-4 ring-1 ring-slate-900/5 shadow-xl">
+      <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-4 ring-1 ring-slate-900/5 shadow-xl hidden">
         <div className="flex flex-row justify-between items-baseline mb-4">
           <h3 className="text-slate-900 dark:text-white mt-5 text-xl font-medium tracking-tight">
             Edit this app
@@ -245,7 +247,7 @@ function App() {
           </li>
         </ul>
       </div>
-      <footer className="mt-4 opacity-50 text-sm">
+      <footer className="mt-4 opacity-50 text-sm hidden">
         <p>
           Got something you want to build? Dive in to the{" "}
           <Link target="_blank" href="https://docs.convex.dev/home">
